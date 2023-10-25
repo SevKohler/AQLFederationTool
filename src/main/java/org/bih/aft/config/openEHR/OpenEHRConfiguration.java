@@ -6,8 +6,8 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.ehrbase.client.openehrclient.OpenEhrClientConfig;
-import org.ehrbase.client.openehrclient.defaultrestclient.DefaultRestClient;
+import org.ehrbase.openehr.sdk.client.openehrclient.OpenEhrClientConfig;
+import org.ehrbase.openehr.sdk.client.openehrclient.defaultrestclient.DefaultRestClient;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -62,7 +62,7 @@ public class OpenEHRConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "omop-bridge.openehr.security.type", havingValue = "oauth2")
+    @ConditionalOnProperty(name = "aft.openehr.security.type", havingValue = "oauth2")
     public AccessTokenService accessTokenService() {
         OpenEHRProperties.OAuth2 oauth2 = properties.getSecurity().getOAuth2();
         return new AccessTokenService(oauth2.getTokenUrl(), oauth2.getClientId(), oauth2.getClientSecret());

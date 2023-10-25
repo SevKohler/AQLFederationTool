@@ -27,14 +27,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -52,11 +50,6 @@
 			<version>2.14.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webflux</artifactId>
-			<version>6.0.7</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.14</version>
@@ -64,29 +57,14 @@
 		<dependency>
 			<groupId>org.ehrbase.openehr.sdk</groupId>
 			<artifactId>client</artifactId>
-			<version>1.26.0</version>
+			<version>2.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ehrbase.openehr.sdk</groupId>
 			<artifactId>aql</artifactId>
 			<version>2.4.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-config</artifactId>
-			<version>5.6.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-oauth2-jose</artifactId>
-			<version>5.6.3</version>
-		</dependency>
-
-    </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>
