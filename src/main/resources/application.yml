@@ -19,7 +19,7 @@ spring:
 
 logging:
   file:
-    name: ./logs/omopbridge.log
+    name: ./logs/aft.log
   level:
     org.hibernate.engine.jdbc.batch.internal.BatchingBatch: DEBUG
     root: info
