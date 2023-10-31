@@ -1,6 +1,6 @@
 aft:
   openehr:
-    base-url: http://localhost:8080/ehrbase/
+    base-url: http://localhost:8090/ehrbase/
     security:
       type: basic
       user:
