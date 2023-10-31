@@ -19,8 +19,8 @@ package org.bih.aft.config.openEHR;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.temporal.ChronoUnit;
 import java.time.Instant;
-//import java.time.temporal.ChronoUnit;
 
 /**
  * Service that handles requesting OAuth2 access token to the configured authorization server.
@@ -66,8 +66,7 @@ public class AccessTokenService {
                 .orElseThrow(() -> new IllegalArgumentException("Response must not be null"));
 
         // Set token expiration time
-      //TODO bring back in  expirationTime = requestTime.plus(response.getExpiresIn(), ChronoUnit.SECONDS);
-
+        expirationTime = requestTime.plus(response.getExpiresIn(), ChronoUnit.SECONDS);
         return response.getAccessToken();
     }
 
