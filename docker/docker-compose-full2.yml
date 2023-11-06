@@ -35,6 +35,18 @@ services:
       EHRBASE_USER: ehrbase_restricted
       EHRBASE_PASSWORD: ehrbase_restricted
 
+  aft:
+    image: aft:latest
+    ports:
+      - 8091:8081
+    environment:
+      AFT_OPENEHR_BASE-URL: http://ehrbase:8080/ehrbase/
+    networks:
+      - ehrbase-net
+    depends_on:
+      - ehrbase
+      - ehrdb2
+
   ehrbase2:
     image: ehrbase/ehrbase:next
     ports:
