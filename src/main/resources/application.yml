@@ -1,4 +1,9 @@
+spring:
+  application:
+    name: AFT
+
 aft:
+  location: "Charite, Berlin"
   openehr:
     base-url: http://localhost:8090/ehrbase/
     security:
@@ -13,9 +18,6 @@ server:
     include-binding-errors: always
     include-message: always
 
-spring:
-  application:
-    name: AFT
 
 logging:
   file:

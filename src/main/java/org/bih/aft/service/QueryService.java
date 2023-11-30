@@ -1,10 +1,9 @@
 package org.bih.aft.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.bih.aft.Exceptions.InvalidCountQuery;
+import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.controller.dao.AQLinput;
 import org.bih.aft.service.dao.FeasabilityOutput;
+import org.bih.aft.service.dao.Location;
 import org.ehrbase.openehr.sdk.aql.dto.AqlQuery;
 import org.ehrbase.openehr.sdk.aql.dto.operand.AggregateFunction;
 import org.ehrbase.openehr.sdk.aql.dto.select.SelectClause;
@@ -16,85 +15,83 @@ import org.ehrbase.openehr.sdk.generator.commons.aql.record.Record1;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class QueryService {
+
+    @Value("${aft.location}")
+    private String homeLocation;
+
     private final OpenEhrClient openEhrClient;
+
+    private final FederationListService federationListService;
+
+
     private static final Logger LOG = LoggerFactory.getLogger(QueryService.class);
 
-    public QueryService(OpenEhrClient openEhrClient) {
+    public QueryService(OpenEhrClient openEhrClient, FederationListService federationListService) {
         this.openEhrClient = openEhrClient;
+        this.federationListService = federationListService;
     }
 
     public List<FeasabilityOutput> federateQuery(AQLinput aqlQuery) throws InvalidCountQuery {
         validateQueryForCount(aqlQuery);
         LOG.info("Query validated");
-        FeasabilityOutput feasabilityOutput = federate(aqlQuery);
+        List<FeasabilityOutput> feasabilityOutput = federate(aqlQuery);
         return generateFeasabilityOutput(feasabilityOutput, executeAqlQuery(aqlQuery.getAql()));
     }
 
-    public List<FeasabilityOutput> localQuery(AQLinput aqlQuery) throws InvalidCountQuery {
+    public FeasabilityOutput localQuery(AQLinput aqlQuery) throws InvalidCountQuery {
         validateQueryForCount(aqlQuery);
         LOG.info("Query validated");
-        return generateFeasabilityOutput(executeAqlQuery(aqlQuery.getAql()));
+        return processQueryLocally(executeAqlQuery(aqlQuery.getAql()));
     }
 
-    private FeasabilityOutput federate(AQLinput aqlQuery) {
+    private List<FeasabilityOutput> federate(AQLinput aqlQuery) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject aql = new JSONObject();
         aql.put("aql", aqlQuery.getAql());
-        final String uri = "http://localhost:8091/query/local";
-        HttpEntity request =
-                new HttpEntity(aql.toString(), headers);
+        HttpEntity request = new HttpEntity(aql.toString(), headers);
         RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.postForObject(uri, request, String.class);
-        LOG.info("Query federated");
-        FeasabilityOutput feasabilityOutput = new FeasabilityOutput();
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            feasabilityOutput = objectMapper.readValue(result, FeasabilityOutput.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        List<FeasabilityOutput> feasabilityOutputList = new ArrayList<>();
+        for(Location location : federationListService.getFederationList().getLocations()) {
+            final String uri = location.getUrl()+"/query/local";
+            ResponseEntity<FeasabilityOutput> result = restTemplate.postForEntity(uri, request, FeasabilityOutput.class);
+            feasabilityOutputList.add(result.getBody());
         }
+        LOG.info("Query federated");
+        return feasabilityOutputList;
+    }
+
+
+    private List<FeasabilityOutput> generateFeasabilityOutput(List<FeasabilityOutput> feasabilityOutputFederated, List<Record1<String>> aqlResult) {
+        feasabilityOutputFederated.add(processQueryLocally(aqlResult));
+        LOG.info("Query finalized");
+        return feasabilityOutputFederated;
+    }
+
+    private FeasabilityOutput processQueryLocally(List<Record1<String>> aqlResult) {
+        LOG.info("Query executed");
+        FeasabilityOutput feasabilityOutput = new FeasabilityOutput();
+        if (Integer.parseInt(aqlResult.get(0).value1()) > 10) {
+            feasabilityOutput.setLocation(homeLocation);
+            feasabilityOutput.setPatients(aqlResult.get(0).value1());
+        } else {
+            feasabilityOutput.setLocation(homeLocation);
+            feasabilityOutput.setPatients("NA");
+        }
+        LOG.info("Query finalized");
         return feasabilityOutput;
     }
 
-
-    private List<FeasabilityOutput> generateFeasabilityOutput(FeasabilityOutput feasabilityOutputFederated, List<Record1<String>> aqlResult) {
-        LOG.info("Query executed");
-        FeasabilityOutput feasabilityOutput = new FeasabilityOutput();
-        if (Integer.parseInt(aqlResult.get(0).value1()) > 10) {
-            feasabilityOutput.setLocation("Charite");
-            feasabilityOutput.setPatients(aqlResult.get(0).value1());
-        } else {
-            feasabilityOutput.setLocation("Charite");
-            feasabilityOutput.setPatients("NA");
-        }
-        List<FeasabilityOutput> federatedResults = new ArrayList<>();
-        federatedResults.add(feasabilityOutputFederated);
-        federatedResults.add(feasabilityOutput);
-        LOG.info("Query finalized");
-        return federatedResults;
-    }
-
-    private List<FeasabilityOutput> generateFeasabilityOutput(List<Record1<String>> aqlResult) {
-        LOG.info("Query executed");
-        FeasabilityOutput feasabilityOutput = new FeasabilityOutput();
-        if (Integer.parseInt(aqlResult.get(0).value1()) > 10) {
-            feasabilityOutput.setLocation("Charite");
-            feasabilityOutput.setPatients(aqlResult.get(0).value1());
-        } else {
-            feasabilityOutput.setLocation("Charite");
-            feasabilityOutput.setPatients("NA");
-        }
-        LOG.info("Query finalized");
-        return List.of(feasabilityOutput);
-    }
 
     private void validateQueryForCount(AQLinput aqlQuery) {
         String query = aqlQuery.getAql();

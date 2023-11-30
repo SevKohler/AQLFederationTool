@@ -2,7 +2,7 @@
   "locations": [
     {
       "name": "Test2",
-      "url": "localhost:8091"
+      "url": "https://localhost:8091"
     }
   ]
 }

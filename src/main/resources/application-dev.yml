@@ -1,4 +1,8 @@
-aft:
+spring:
+  application:
+    name: AFT
+
+afasdt:
   openehr:
     base-url: http://localhost:8080/ehrbase/
     security:
@@ -11,19 +15,14 @@ server:
   port: 8081
   ssl:
     enabled: true
-    key-store-type: PKCS12
-    key-store: classpath:keystore/keystore.p12
+    key-store: classpath:keystore/KeyStore.jks
     key-store-password: changeit
     protocol: TLS
-    enabled-protocols: TLSv1.2
+    trust-store: classpath:keystore/truststore.jks
+    trust-store-password: changeit
   error:
     include-binding-errors: always
     include-message: always
-
-
-spring:
-  application:
-    name: AFT
 
 logging:
   file:
