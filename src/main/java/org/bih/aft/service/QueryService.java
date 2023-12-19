@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -63,12 +64,24 @@ public class QueryService {
         RestTemplate restTemplate = new RestTemplate();
         List<FeasabilityOutput> feasabilityOutputList = new ArrayList<>();
         for(Location location : federationListService.getFederationList().getLocations()) {
-            final String uri = location.getUrl()+"/query/local";
-            ResponseEntity<FeasabilityOutput> result = restTemplate.postForEntity(uri, request, FeasabilityOutput.class);
-            feasabilityOutputList.add(result.getBody());
+            sendQueryToLocation(location, restTemplate, request, feasabilityOutputList);
         }
         LOG.info("Query federated");
         return feasabilityOutputList;
+    }
+
+    private void sendQueryToLocation(Location location, RestTemplate restTemplate, HttpEntity request, List<FeasabilityOutput> feasabilityOutputList) {
+        try{
+            final String uri = location.getUrl()+"/query/local";
+            ResponseEntity<FeasabilityOutput> result = restTemplate.postForEntity(uri, request, FeasabilityOutput.class);
+            feasabilityOutputList.add(result.getBody());
+        } catch (ResourceAccessException e){
+            LOG.warn("Location " + location.getName() + " could not be reached. Error: " + e);
+            FeasabilityOutput feasabilityOutput = new FeasabilityOutput();
+            feasabilityOutput.setLocation(location.getName());
+            feasabilityOutput.setPatients("Error");
+            feasabilityOutputList.add(feasabilityOutput);
+        }
     }
 
 
