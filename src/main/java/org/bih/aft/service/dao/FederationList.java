@@ -1,7 +1,12 @@
 package org.bih.aft.service.dao;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.util.List;
 
+@ToString
+@EqualsAndHashCode
 public class FederationList {
     private List<Location> locations;
 
