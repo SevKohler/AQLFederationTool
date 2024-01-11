@@ -13,11 +13,8 @@ class FederationListServiceTest {
     void getFederationList() {
         FederationListService service = new FederationListService();
         FederationList actual = service.getFederationList();
-        FederationList expected = new FederationList();
-        Location location = new Location();
-        location.setName("Test2");
-        location.setUrl("https://localhost:8091");
-        expected.setLocations(Lists.list(location));
+        Location location = new Location("Test2", "https://localhost:8091");
+        FederationList expected = new FederationList(Lists.list(location));
 
         assertEquals(expected, actual);
     }

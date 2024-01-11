@@ -56,7 +56,7 @@ public class QueryService implements QueryUseCase {
         HttpEntity request = new HttpEntity(aql.toString(), headers);
         RestTemplate restTemplate = new RestTemplate();
         List<FeasabilityOutput> feasabilityOutputList = new ArrayList<>();
-        for (Location location : federationListService.getFederationList().getLocations()) {
+        for (Location location : federationListService.getFederationList().locations()) {
             sendQueryToLocation(location, restTemplate, request, feasabilityOutputList);
         }
         LOG.info("Query federated");
@@ -65,13 +65,13 @@ public class QueryService implements QueryUseCase {
 
     private void sendQueryToLocation(Location location, RestTemplate restTemplate, HttpEntity request, List<FeasabilityOutput> feasabilityOutputList) {
         try {
-            final String uri = location.getUrl() + "/query/local";
+            final String uri = location.url() + "/query/local";
             ResponseEntity<FeasabilityOutput> result = restTemplate.postForEntity(uri, request, FeasabilityOutput.class);
             feasabilityOutputList.add(result.getBody());
         } catch (ResourceAccessException e) {
-            LOG.warn("Location " + location.getName() + " could not be reached. Error: " + e);
+            LOG.warn("Location " + location.name() + " could not be reached. Error: " + e);
             FeasabilityOutput feasabilityOutput = new FeasabilityOutput();
-            feasabilityOutput.setLocation(location.getName());
+            feasabilityOutput.setLocation(location.name());
             feasabilityOutput.setPatients("Error");
             feasabilityOutputList.add(feasabilityOutput);
         }
