@@ -26,12 +26,7 @@ public class FederationListService {
         return federationList;
     }
 
-    private void updateList() {
-        //Pull from server ....
-    }
-
     public FederationList getFederationList(){
-        updateList();
         return loadFederationfile();
     }
 }
