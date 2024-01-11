@@ -1,7 +1,8 @@
 package org.bih.aft.service;
 
-import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.controller.dao.AQLinput;
+import org.bih.aft.exceptions.InvalidCountQuery;
+import org.bih.aft.ports.QueryUseCase;
 import org.bih.aft.service.dao.FeasabilityOutput;
 import org.bih.aft.service.dao.Location;
 import org.ehrbase.openehr.sdk.aql.dto.AqlQuery;
@@ -16,7 +17,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -25,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class QueryService {
+public class QueryService implements QueryUseCase {
 
     @Value("${aft.location}")
     private String homeLocation;
@@ -42,20 +46,9 @@ public class QueryService {
         this.federationListService = federationListService;
     }
 
-    public List<FeasabilityOutput> federateQuery(AQLinput aqlQuery) throws InvalidCountQuery {
-        validateQueryForCount(aqlQuery);
-        LOG.info("Query validated");
-        List<FeasabilityOutput> feasabilityOutput = federate(aqlQuery);
-        return generateFeasabilityOutput(feasabilityOutput, executeAqlQuery(aqlQuery.getAql()));
-    }
 
-    public FeasabilityOutput localQuery(AQLinput aqlQuery) throws InvalidCountQuery {
-        validateQueryForCount(aqlQuery);
-        LOG.info("Query validated");
-        return processQueryLocally(executeAqlQuery(aqlQuery.getAql()));
-    }
 
-    private List<FeasabilityOutput> federate(AQLinput aqlQuery) {
+    private List<FeasabilityOutput> federate2(AQLinput aqlQuery) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject aql = new JSONObject();
@@ -63,7 +56,7 @@ public class QueryService {
         HttpEntity request = new HttpEntity(aql.toString(), headers);
         RestTemplate restTemplate = new RestTemplate();
         List<FeasabilityOutput> feasabilityOutputList = new ArrayList<>();
-        for(Location location : federationListService.getFederationList().getLocations()) {
+        for (Location location : federationListService.getFederationList().getLocations()) {
             sendQueryToLocation(location, restTemplate, request, feasabilityOutputList);
         }
         LOG.info("Query federated");
@@ -71,11 +64,11 @@ public class QueryService {
     }
 
     private void sendQueryToLocation(Location location, RestTemplate restTemplate, HttpEntity request, List<FeasabilityOutput> feasabilityOutputList) {
-        try{
-            final String uri = location.getUrl()+"/query/local";
+        try {
+            final String uri = location.getUrl() + "/query/local";
             ResponseEntity<FeasabilityOutput> result = restTemplate.postForEntity(uri, request, FeasabilityOutput.class);
             feasabilityOutputList.add(result.getBody());
-        } catch (ResourceAccessException e){
+        } catch (ResourceAccessException e) {
             LOG.warn("Location " + location.getName() + " could not be reached. Error: " + e);
             FeasabilityOutput feasabilityOutput = new FeasabilityOutput();
             feasabilityOutput.setLocation(location.getName());
@@ -142,5 +135,20 @@ public class QueryService {
         } catch (NullPointerException nullPointerException) {
             return new ArrayList<>();
         }
+    }
+
+    @Override
+    public List<FeasabilityOutput> federate(AQLinput aqlQuery) throws InvalidCountQuery {
+        validateQueryForCount(aqlQuery);
+        LOG.info("Query validated");
+        List<FeasabilityOutput> feasabilityOutput = federate2(aqlQuery);
+        return generateFeasabilityOutput(feasabilityOutput, executeAqlQuery(aqlQuery.getAql()));
+    }
+
+    @Override
+    public FeasabilityOutput local(AQLinput aqlQuery) throws InvalidCountQuery {
+        validateQueryForCount(aqlQuery);
+        LOG.info("Query validated");
+        return processQueryLocally(executeAqlQuery(aqlQuery.getAql()));
     }
 }
