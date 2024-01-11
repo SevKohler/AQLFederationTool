@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.controller.dao.AQLinput;
 import org.bih.aft.ports.QueryUseCase;
-import org.bih.aft.service.QueryService;
+import org.bih.aft.service.FederationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class QueryController {
 
     private final QueryUseCase queryUseCaseService;
-    private static final Logger LOG = LoggerFactory.getLogger(QueryService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FederationService.class);
 
     public QueryController( QueryUseCase queryService) {
         this.queryUseCaseService = queryService;
