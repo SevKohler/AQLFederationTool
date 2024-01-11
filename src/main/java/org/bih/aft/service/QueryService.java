@@ -36,12 +36,12 @@ public class QueryService implements QueryUseCase {
 
     private final OpenEhrClient openEhrClient;
 
-    private final FederationListService federationListService;
+    private final LocationProvider federationListService;
 
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryService.class);
 
-    public QueryService(OpenEhrClient openEhrClient, FederationListService federationListService) {
+    public QueryService(OpenEhrClient openEhrClient, LocationProvider federationListService) {
         this.openEhrClient = openEhrClient;
         this.federationListService = federationListService;
     }
@@ -56,7 +56,7 @@ public class QueryService implements QueryUseCase {
         HttpEntity request = new HttpEntity(aql.toString(), headers);
         RestTemplate restTemplate = new RestTemplate();
         List<FeasabilityOutput> feasabilityOutputList = new ArrayList<>();
-        for (Location location : federationListService.getFederationList().locations()) {
+        for (Location location : federationListService.locations()) {
             sendQueryToLocation(location, restTemplate, request, feasabilityOutputList);
         }
         LOG.info("Query federated");

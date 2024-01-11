@@ -2,19 +2,21 @@ package org.bih.aft.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bih.aft.service.dao.FederationList;
+import org.bih.aft.service.dao.Location;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @Service
-public class FederationListService {
+public class FederationListService implements LocationProvider {
 
     private final String federationListPath = "locations.json";
 
     private FederationList federationList;
 
-    private FederationList loadFederationfile()  {
+    private FederationList loadFederationfile() {
         ObjectMapper mapper = new ObjectMapper();
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         File file = new File(classloader.getResource(federationListPath).getFile());
@@ -26,7 +28,7 @@ public class FederationListService {
         return federationList;
     }
 
-    public FederationList getFederationList(){
-        return loadFederationfile();
+    public List<Location> locations() {
+        return loadFederationfile().locations();
     }
 }
