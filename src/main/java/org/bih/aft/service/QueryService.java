@@ -65,7 +65,7 @@ public class QueryService implements QueryUseCase {
 
     private void sendQueryToLocation(Location location, RestTemplate restTemplate, HttpEntity request, List<FeasabilityOutput> feasabilityOutputList) {
         try {
-            final String uri = location.url() + "/query/local";
+            final String uri = location.localQueryEndpoint();
             ResponseEntity<FeasabilityOutput> result = restTemplate.postForEntity(uri, request, FeasabilityOutput.class);
             feasabilityOutputList.add(result.getBody());
         } catch (ResourceAccessException e) {
