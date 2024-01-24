@@ -38,14 +38,14 @@ public class FederationService implements QueryUseCase {
     public List<FeasibilityOutput> federate(AQLinput aqlQuery) throws InvalidCountQuery {
         queryVerificator.verify(aqlQuery);
         List<FeasibilityOutput> feasabilityOutput = processQueryFederated(aqlQuery);
-        return generateFeasabilityOutput(feasabilityOutput, executeAqlQuery(aqlQuery.getAql()));
+        return generateFeasabilityOutput(feasabilityOutput, executeAqlQuery(aqlQuery.aql()));
 
     }
 
     @Override
     public FeasibilityOutput local(AQLinput aqlQuery) throws InvalidCountQuery {
         queryVerificator.verify(aqlQuery);
-        return processQueryLocally(executeAqlQuery(aqlQuery.getAql()));
+        return processQueryLocally(executeAqlQuery(aqlQuery.aql()));
     }
 
     private List<FeasibilityOutput> processQueryFederated(AQLinput aqlQuery) {

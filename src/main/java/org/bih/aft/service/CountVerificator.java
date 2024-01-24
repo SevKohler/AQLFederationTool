@@ -12,8 +12,8 @@ import java.util.List;
 @Slf4j
 public class CountVerificator implements QueryVerificator {
     @Override
-    public void verify(AQLinput aqlQuery) {
-        String query = aqlQuery.getAql();
+    public void verify(AQLinput aqlQuery) { // TODO: What return type here ? Response should be 400 in the end
+        String query = aqlQuery.aql();
         AqlQuery aqlQuery1 = AqlQuery.parse(query);
         SelectClause selectClause = aqlQuery1.getSelect();
         checkSize(selectClause);

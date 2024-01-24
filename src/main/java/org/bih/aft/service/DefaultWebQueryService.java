@@ -21,7 +21,7 @@ public class DefaultWebQueryService implements QueryService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             JSONObject aql = new JSONObject();
-            aql.put("aql", aqlQuery.getAql());
+            aql.put("aql", aqlQuery.aql());
             HttpEntity request = new HttpEntity(aql.toString(), headers);
             RestTemplate restTemplate = new RestTemplate();
             final String uri = location.localQueryEndpoint();
