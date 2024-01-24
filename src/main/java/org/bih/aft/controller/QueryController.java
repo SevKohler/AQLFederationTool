@@ -4,11 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.controller.dao.AQLinput;
-import org.bih.aft.service.QueryService;
-import org.ehrbase.openehr.sdk.client.openehrclient.OpenEhrClient;
+import org.bih.aft.ports.QueryUseCase;
+import org.bih.aft.service.FederationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +16,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/query")
 public class QueryController {
 
-    private final QueryService queryService;
-    private static final Logger LOG = LoggerFactory.getLogger(QueryService.class);
+    private final QueryUseCase queryUseCaseService;
+    private static final Logger LOG = LoggerFactory.getLogger(FederationService.class);
 
-    public QueryController( QueryService queryService) {
-        this.queryService = queryService;
+    public QueryController( QueryUseCase queryService) {
+        this.queryUseCaseService = queryService;
     }
     @PostMapping(
             path = "/federate",
@@ -32,7 +31,7 @@ public class QueryController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             AQLinput aQlQuery = objectMapper.readValue(json, AQLinput.class);
-            return new ResponseEntity<>(queryService.federateQuery(aQlQuery), HttpStatus.OK);
+            return new ResponseEntity<>(queryUseCaseService.federate(aQlQuery), HttpStatus.OK);
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>("{ \"message\" : \"Json malformed\" }", HttpStatus.BAD_REQUEST);
         }catch (InvalidCountQuery invalidCountException){
@@ -49,7 +48,7 @@ public class QueryController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             AQLinput aQlQuery = objectMapper.readValue(json, AQLinput.class);
-            return new ResponseEntity<>(queryService.localQuery(aQlQuery), HttpStatus.OK);
+            return new ResponseEntity<>(queryUseCaseService.local(aQlQuery), HttpStatus.OK);
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>("{ \"message\" : \"Json malformed\" }", HttpStatus.BAD_REQUEST);
         }catch (InvalidCountQuery invalidCountException){

@@ -1,6 +1,6 @@
 package org.bih.aft.service.dao;
 
-public class FeasabilityOutput {
+public class FeasibilityOutput {
     String location;
     String patients;
 
