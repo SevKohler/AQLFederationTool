@@ -2,6 +2,7 @@ package org.bih.aft.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.controller.dao.AQLinput;
 import org.bih.aft.ports.QueryUseCase;
@@ -14,10 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/query")
+@Slf4j
 public class QueryController {
 
     private final QueryUseCase queryUseCaseService;
-    private static final Logger LOG = LoggerFactory.getLogger(FederationService.class);
 
     public QueryController( QueryUseCase queryService) {
         this.queryUseCaseService = queryService;
@@ -27,7 +28,7 @@ public class QueryController {
             consumes = "application/json",
             produces = "application/json")
     public ResponseEntity<Object> federateQuery(@RequestBody String json) {
-        LOG.info("Query received");
+        log.info("Query received");
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             AQLinput aQlQuery = objectMapper.readValue(json, AQLinput.class);
@@ -44,7 +45,7 @@ public class QueryController {
             consumes = "application/json",
             produces = "application/json")
     public ResponseEntity<Object> localQuery(@RequestBody String json) {
-        LOG.info("Query received");
+        log.info("Query received");
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             AQLinput aQlQuery = objectMapper.readValue(json, AQLinput.class);
