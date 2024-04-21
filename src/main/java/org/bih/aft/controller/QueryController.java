@@ -27,14 +27,10 @@ public class QueryController {
             path = "/federate",
             consumes = "application/json",
             produces = "application/json")
-    public ResponseEntity<Object> federateQuery(@RequestBody String json) {
+    public ResponseEntity<Object> federateQuery(@RequestBody AQLinput aQlQuery) {
         log.info("Query received");
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            AQLinput aQlQuery = objectMapper.readValue(json, AQLinput.class);
             return new ResponseEntity<>(queryUseCaseService.federate(aQlQuery), HttpStatus.OK);
-        } catch (JsonProcessingException e) {
-            return new ResponseEntity<>("{ \"message\" : \"Json malformed\" }", HttpStatus.BAD_REQUEST);
         }catch (InvalidCountQuery invalidCountException){
             return new ResponseEntity<>("{ \"message\" : "+invalidCountException.getMessage()+" }", HttpStatus.BAD_REQUEST);
         }
