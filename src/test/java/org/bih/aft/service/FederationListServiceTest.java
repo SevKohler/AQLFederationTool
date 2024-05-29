@@ -16,7 +16,6 @@ class FederationListServiceTest {
         List<Location> actual = service.locations();
         Location location = new Location("Test2", "https://localhost:8091");
         List<Location> expected = Lists.list(location);
-
         assertEquals(expected, actual);
     }
 }

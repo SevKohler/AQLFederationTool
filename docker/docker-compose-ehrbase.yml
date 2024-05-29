@@ -9,7 +9,7 @@ services:
     networks:
       - ehrbase-net
     environment:
-      DB_URL: jdbc:postgresql://ehrdb:5433/ehrbase
+      DB_URL: jdbc:postgresql://ehrdb:5432/ehrbase
       DB_USER_ADMIN: ehrbase
       DB_PASS_ADMIN: ehrbase
       SECURITY_AUTHTYPE: BASIC
@@ -20,7 +20,8 @@ services:
       DB_USER: ehrbase_restricted
       DB_PASS: ehrbase_restricted
     depends_on:
-      - ehrdb
+      ehrdb:
+        condition: service_healthy
     restart: on-failure
 
   ehrdb:
@@ -32,10 +33,21 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
       EHRBASE_USER_ADMIN: ehrbase
       EHRBASE_PASSWORD_ADMIN: ehrbase
       EHRBASE_USER: ehrbase_restricted
       EHRBASE_PASSWORD: ehrbase_restricted
+    volumes:
+      - ehrdb-pgdata:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: "pg_isready -h localhost -U $$POSTGRES_USER"
+      interval: 10s
+      timeout: 5s
+      retries: 70
 
 networks:
   ehrbase-net: {}
+
+volumes:
+  ehrdb-pgdata:

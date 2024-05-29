@@ -7,10 +7,14 @@ import org.ehrbase.openehr.sdk.aql.dto.AqlQuery;
 import org.ehrbase.openehr.sdk.aql.dto.operand.AggregateFunction;
 import org.ehrbase.openehr.sdk.aql.dto.select.SelectClause;
 import org.ehrbase.openehr.sdk.aql.dto.select.SelectExpression;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Slf4j
+@Service
 public class CountVerificator implements QueryVerificator {
+
+
     @Override
     public void verify(AQLinput aqlQuery) { // TODO: What return type here ? Response should be 400 in the end
         String query = aqlQuery.aql();

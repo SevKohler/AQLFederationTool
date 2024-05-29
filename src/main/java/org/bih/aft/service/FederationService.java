@@ -25,14 +25,13 @@ public class FederationService implements QueryUseCase {
     @Value("${aft.location}")
     private String homeLocation;
 
-    OpenEhrClient openEhrClient;
+    private final OpenEhrClient openEhrClient;
 
-    QueryVerificator queryVerificator;
+    private final QueryVerificator queryVerificator;
 
-    LocationProvider federationListService;
+    private final LocationProvider federationListService;
 
-    QueryService queryService;
-
+    private final QueryService queryService;
 
     @Override
     public List<FeasibilityOutput> federate(AQLinput aqlQuery) throws InvalidCountQuery {
