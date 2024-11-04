@@ -4,6 +4,9 @@ spring:
 
 aft:
   location: "Charite, Berlin"
+  remote-locations:
+    - name: "Test2"
+      url: "https://localhost:8091"
   openehr:
     base-url: http://localhost:8090/ehrbase/
     security:
