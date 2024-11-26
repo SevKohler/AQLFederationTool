@@ -14,7 +14,7 @@
 	<name>AFT</name>
 	<description>AFT</description>
 	<properties>
-		<java.version>19</java.version>
+		<java.version>21</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
