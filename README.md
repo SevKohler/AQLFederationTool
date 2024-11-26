@@ -5,6 +5,8 @@
 AQLFederationTool (AFT) distributes openEHR AQL queries to remote sites and merges the results.
 Currently, the number of patients is returned for feasibility queries.
 
+AFT can create its own federated network or use [Samply.Beam](https://github.com/samply/beam).
+
 
 ## Configuration
 
@@ -13,6 +15,7 @@ Or the configuration can be copied to a new file and the file name passed as a c
 
 ```
 aft:
+  protocol: native
   location: "Add your site name here"
   remote-locations:
     - name: "Other site"
@@ -28,6 +31,21 @@ aft:
         password: "your secret password"
 ```
 Alternatively, configuration values can be passed as environment variables. See the docker compose file for an example.
+
+### Beam
+
+To configure for usage with Samply.Beam, the following configuration can be added:
+```
+aft:
+  protocol: beam
+
+beam:
+  proxy-url: http://localhost:8081/
+  proxy-id: "my-clinic.broker.the-european-openehr-network.example.net"
+  app-secret: "your app secret"
+```
+For remote locations, the AppIDs instead of URLs need to be configured. Samply.Beam version 0.8 or later is required.
+
 
 ## Installation
 

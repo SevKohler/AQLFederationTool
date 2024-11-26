@@ -12,7 +12,16 @@ import java.util.List;
 @ConfigurationProperties(prefix = "aft")
 public class AftProperties {
 
+    private Protocol protocol;
+
+    private String location;
+
     private List<Location> remoteLocations;
 
     private int minHits = 10;
+}
+
+enum Protocol {
+    NATIVE,
+    BEAM,
 }

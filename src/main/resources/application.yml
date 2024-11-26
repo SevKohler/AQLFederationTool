@@ -3,6 +3,7 @@ spring:
     name: AFT
 
 aft:
+  protocol: native
   location: "Charite, Berlin"
   remote-locations:
     - name: "Test2"
@@ -15,6 +16,11 @@ aft:
         name: myuser
         password: myPassword432
   min-hits: 10
+
+beam:
+  proxy-url: http://localhost:8081/
+  proxy-id: "proxy1.broker"
+  app-secret: "App1Secret"
 
 server:
   port: 8081
