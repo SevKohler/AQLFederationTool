@@ -1,0 +1,214 @@
+name: aft
+
+services:
+  ehrbase-local:
+    profiles: [ "local", "local-eb" ]
+    image: ehrbase/ehrbase:next
+    ports:
+      - "127.0.0.1:38080:8080"
+    networks:
+      - ehrnet-local
+    environment:
+      DB_URL: jdbc:postgresql://ehrdb-local:5432/ehrbase
+      DB_USER_ADMIN: ehrbase
+      DB_PASS_ADMIN: ehrbase
+      SECURITY_AUTHTYPE: BASIC
+      SECURITY_AUTHUSER: myuser
+      SECURITY_AUTHPASSWORD: myPassword432
+      SECURITY_AUTHADMINUSER: myadmin
+      SECURITY_AUTHADMINPASSWORD: mySuperAwesomePassword123
+      DB_USER: ehrbase_restricted
+      DB_PASS: ehrbase_restricted
+    depends_on:
+      ehrdb-local:
+        condition: service_healthy
+    restart: on-failure
+
+  ehrdb-local:
+    profiles: [ "local", "local-eb" ]
+    image: ehrbase/ehrbase-v2-postgres:16.2
+    ports:
+      - "35430:5432"
+    networks:
+      - ehrnet-local
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+      EHRBASE_USER_ADMIN: ehrbase
+      EHRBASE_PASSWORD_ADMIN: ehrbase
+      EHRBASE_USER: ehrbase_restricted
+      EHRBASE_PASSWORD: ehrbase_restricted
+    volumes:
+      - ehrdb-local-pgdata:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: "pg_isready -h localhost -U $$POSTGRES_USER"
+      interval: 10s
+      timeout: 5s
+      retries: 70
+
+  aft-local:
+    profiles: ["local"]
+    build: ..
+    ports:
+      - "127.0.0.1:38090:8070"
+    environment:
+      AFT_OPENEHR_BASE-URL: http://ehrbase-local:8080/ehrbase/
+      AFT_OPENEHR_SECURITY_USER_NAME: myuser
+      AFT_OPENEHR_SECURITY_USER_PASSWORD: myPassword432
+      AFT_LOCATION: "Clinic 0"
+      AFT_REMOTELOCATIONS_0_NAME: "Clinic 1"
+      AFT_REMOTELOCATIONS_0_URL: http://aft-remote1:8071
+      AFT_REMOTELOCATIONS_1_NAME: "Clinic 2"
+      AFT_REMOTELOCATIONS_1_URL: http://aft-remote2:8072
+      SERVER_PORT: 8070
+    networks:
+      - ehrnet-local
+      - aft
+    depends_on:
+      - ehrbase-local
+
+  ehrbase-remote1:
+    profiles: [ "remote1" ]
+    image: ehrbase/ehrbase:next
+    ports:
+      - "127.0.0.1:38081:8080"
+    networks:
+      - ehrnet-remote1
+    environment:
+      DB_URL: jdbc:postgresql://ehrdb-remote1:5431/ehrbase
+      DB_USER_ADMIN: ehrbase
+      DB_PASS_ADMIN: ehrbase
+      SECURITY_AUTHTYPE: BASIC
+      SECURITY_AUTHUSER: myuser
+      SECURITY_AUTHPASSWORD: myPassword432
+      SECURITY_AUTHADMINUSER: myadmin
+      SECURITY_AUTHADMINPASSWORD: mySuperAwesomePassword123
+      DB_USER: ehrbase_restricted
+      DB_PASS: ehrbase_restricted
+    depends_on:
+      - ehrdb-remote1
+    restart: on-failure
+
+  ehrdb-remote1:
+    profiles: [ "remote1" ]
+    image: ehrbase/ehrbase-v2-postgres:16.2
+    ports:
+      - "127.0.0.1:35431:5431"
+    networks:
+      - ehrnet-remote1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+      EHRBASE_USER_ADMIN: ehrbase
+      EHRBASE_PASSWORD_ADMIN: ehrbase
+      EHRBASE_USER: ehrbase_restricted
+      EHRBASE_PASSWORD: ehrbase_restricted
+    command: -p 5431
+    volumes:
+      - ehrdb-remote1-pgdata:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: "pg_isready -h localhost -p 5431 -U $$POSTGRES_USER"
+      interval: 10s
+      timeout: 5s
+      retries: 70
+
+  aft-remote1:
+    profiles: ["remote1"]
+    build: ..
+    ports:
+      - "127.0.0.1:38091:8071"
+    environment:
+      AFT_OPENEHR_BASE-URL: http://ehrbase-remote1:8080/ehrbase/
+      AFT_OPENEHR_SECURITY_USER_NAME: myuser
+      AFT_OPENEHR_SECURITY_USER_PASSWORD: myPassword432
+      AFT_LOCATION: "Clinic 1"
+      AFT_REMOTELOCATIONS_0_NAME: "Clinic 0"
+      AFT_REMOTELOCATIONS_0_URL: http://aft-local:8070
+      AFT_REMOTELOCATIONS_1_NAME: "Clinic 2"
+      AFT_REMOTELOCATIONS_1_URL: http://aft-remote2:8072
+      SERVER_PORT: 8071
+    networks:
+      - ehrnet-remote1
+      - aft
+    depends_on:
+      - ehrbase-remote1
+
+  ehrbase-remote2:
+    profiles: [ "remote2" ]
+    image: ehrbase/ehrbase:next
+    ports:
+      - "127.0.0.1:38082:8080"
+    networks:
+      - ehrnet-remote2
+    environment:
+      DB_URL: jdbc:postgresql://ehrdb-remote2:5432/ehrbase
+      DB_USER_ADMIN: ehrbase
+      DB_PASS_ADMIN: ehrbase
+      SECURITY_AUTHTYPE: BASIC
+      SECURITY_AUTHUSER: myuser
+      SECURITY_AUTHPASSWORD: myPassword432
+      SECURITY_AUTHADMINUSER: myadmin
+      SECURITY_AUTHADMINPASSWORD: mySuperAwesomePassword123
+      DB_USER: ehrbase_restricted
+      DB_PASS: ehrbase_restricted
+    depends_on:
+      - ehrdb-remote2
+    restart: on-failure
+
+  ehrdb-remote2:
+    profiles: [ "remote2" ]
+    image: ehrbase/ehrbase-v2-postgres:16.2
+    ports:
+      - "127.0.0.1:35432:5432"
+    networks:
+      - ehrnet-remote2
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+      EHRBASE_USER_ADMIN: ehrbase
+      EHRBASE_PASSWORD_ADMIN: ehrbase
+      EHRBASE_USER: ehrbase_restricted
+      EHRBASE_PASSWORD: ehrbase_restricted
+    command: -p 5432
+    volumes:
+      - ehrdb-remote2-pgdata:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: "pg_isready -h localhost -p 5432 -U $$POSTGRES_USER"
+      interval: 10s
+      timeout: 5s
+      retries: 70
+
+  aft-remote2:
+    profiles: ["remote2"]
+    build: ..
+    ports:
+      - "127.0.0.1:38092:8072"
+    environment:
+      AFT_OPENEHR_BASE-URL: http://ehrbase-remote2:8080/ehrbase/
+      AFT_OPENEHR_SECURITY_USER_NAME: myuser
+      AFT_OPENEHR_SECURITY_USER_PASSWORD: myPassword432
+      AFT_LOCATION: "Clinic 2"
+      AFT_REMOTELOCATIONS_0_NAME: "Clinic 0"
+      AFT_REMOTELOCATIONS_0_URL: http://aft-local:8070
+      AFT_REMOTELOCATIONS_1_NAME: "Clinic 1"
+      AFT_REMOTELOCATIONS_1_URL: http://aft-remote:8071
+      SERVER_PORT: 8072
+    networks:
+      - ehrnet-remote2
+      - aft
+    depends_on:
+      - ehrbase-remote2
+
+networks:
+  aft: {}
+  ehrnet-local: {}
+  ehrnet-remote1: {}
+  ehrnet-remote2: {}
+
+volumes:
+  ehrdb-local-pgdata:
+  ehrdb-remote1-pgdata:
+  ehrdb-remote2-pgdata:
