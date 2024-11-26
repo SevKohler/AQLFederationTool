@@ -49,7 +49,13 @@ services:
 
   aft-local:
     profiles: ["local"]
-    build: ..
+    build:
+      context: ..
+      args:
+        http_proxy_host: ${http_proxy_host:-}
+        http_proxy_port: ${http_proxy_port:-}
+        https_proxy_host: ${https_proxy_host:-}
+        https_proxy_port: ${https_proxy_port:-}
     ports:
       - "127.0.0.1:38090:8070"
     environment:
@@ -116,7 +122,13 @@ services:
 
   aft-remote1:
     profiles: ["remote1"]
-    build: ..
+    build:
+      context: ..
+      args:
+        http_proxy_host: ${http_proxy_host:-}
+        http_proxy_port: ${http_proxy_port:-}
+        https_proxy_host: ${https_proxy_host:-}
+        https_proxy_port: ${https_proxy_port:-}
     ports:
       - "127.0.0.1:38091:8071"
     environment:
@@ -183,7 +195,13 @@ services:
 
   aft-remote2:
     profiles: ["remote2"]
-    build: ..
+    build:
+      context: ..
+      args:
+        http_proxy_host: ${http_proxy_host:-}
+        http_proxy_port: ${http_proxy_port:-}
+        https_proxy_host: ${https_proxy_host:-}
+        https_proxy_port: ${https_proxy_port:-}
     ports:
       - "127.0.0.1:38092:8072"
     environment:
