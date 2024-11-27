@@ -7,10 +7,6 @@ import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.ports.QueryUseCase;
 import org.bih.aft.service.dao.FeasibilityOutput;
 import org.bih.aft.service.dao.Location;
-import org.ehrbase.openehr.sdk.client.openehrclient.OpenEhrClient;
-import org.ehrbase.openehr.sdk.generator.commons.aql.query.NativeQuery;
-import org.ehrbase.openehr.sdk.generator.commons.aql.query.Query;
-import org.ehrbase.openehr.sdk.generator.commons.aql.record.Record1;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +21,7 @@ public class FederationService implements QueryUseCase {
     @Value("${aft.location}")
     private String homeLocation;
 
-    private final OpenEhrClient openEhrClient;
+    private final OpenEhrQueryService openEhrQueryService;
 
     private final QueryVerificator queryVerificator;
 
@@ -37,14 +33,14 @@ public class FederationService implements QueryUseCase {
     public List<FeasibilityOutput> federate(AQLinput aqlQuery) throws InvalidCountQuery {
         queryVerificator.verify(aqlQuery);
         List<FeasibilityOutput> feasabilityOutput = processQueryFederated(aqlQuery);
-        return generateFeasabilityOutput(feasabilityOutput, executeAqlQuery(aqlQuery.aql()));
+        return generateFeasabilityOutput(feasabilityOutput, openEhrQueryService.executeCountQuery(aqlQuery.aql()));
 
     }
 
     @Override
     public FeasibilityOutput local(AQLinput aqlQuery) throws InvalidCountQuery {
         queryVerificator.verify(aqlQuery);
-        return processQueryLocally(executeAqlQuery(aqlQuery.aql()));
+        return processQueryLocally(openEhrQueryService.executeCountQuery(aqlQuery.aql()));
     }
 
     private List<FeasibilityOutput> processQueryFederated(AQLinput aqlQuery) {
@@ -56,12 +52,12 @@ public class FederationService implements QueryUseCase {
         return feasabilityOutputList;
     }
 
-    private FeasibilityOutput processQueryLocally(List<Record1<String>> aqlResult) {
+    private FeasibilityOutput processQueryLocally(long aqlResult) {
         log.info("Query executed");
         FeasibilityOutput feasabilityOutput = new FeasibilityOutput();
-        if (Integer.parseInt(aqlResult.get(0).value1()) > 10) {
+        if (aqlResult > 10) {
             feasabilityOutput.setLocation(homeLocation);
-            feasabilityOutput.setPatients(aqlResult.get(0).value1());
+            feasabilityOutput.setPatients(Long.toString(aqlResult));
         } else {
             feasabilityOutput.setLocation(homeLocation);
             feasabilityOutput.setPatients("NA");
@@ -70,16 +66,7 @@ public class FederationService implements QueryUseCase {
         return feasabilityOutput;
     }
 
-    private List<Record1<String>> executeAqlQuery(String inputQuery) {
-        NativeQuery<Record1<String>> query = Query.buildNativeQuery(inputQuery, String.class);
-        try {
-            return openEhrClient.aqlEndpoint().execute(query);
-        } catch (NullPointerException nullPointerException) {
-            return new ArrayList<>(); // Some platform return a NullPointer if nothing is found.
-        }
-    }
-
-    private List<FeasibilityOutput> generateFeasabilityOutput(List<FeasibilityOutput> feasabilityOutputFederated, List<Record1<String>> aqlResult) {
+    private List<FeasibilityOutput> generateFeasabilityOutput(List<FeasibilityOutput> feasabilityOutputFederated, long aqlResult) {
         feasabilityOutputFederated.add(processQueryLocally(aqlResult));
         log.info("Query finalized");
         return feasabilityOutputFederated;
