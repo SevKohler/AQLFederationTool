@@ -28,16 +28,10 @@ public class DefaultWebQueryService implements QueryService {
             RestTemplate restTemplate = new RestTemplate();
             final String uri = location.localQueryEndpoint();
             ResponseEntity<FeasibilityOutput> result = restTemplate.postForEntity(uri, request, FeasibilityOutput.class);
-            FeasibilityOutput feasabilityOutput = new FeasibilityOutput();
-            feasabilityOutput.setLocation(location.name());
-            feasabilityOutput.setPatients(result.getBody().getPatients());
-            return feasabilityOutput;
+            return new FeasibilityOutput(location.name(), result.getBody().getPatients());
         } catch (ResourceAccessException e) {
             log.warn("Location " + location.name() + " could not be reached. Error: " + e);
-            FeasibilityOutput feasabilityOutput = new FeasibilityOutput();
-            feasabilityOutput.setLocation(location.name());
-            feasabilityOutput.setPatients("Error");
-            return feasabilityOutput;
+            return new FeasibilityOutput(location.name(), "Error");
         }
 
     }

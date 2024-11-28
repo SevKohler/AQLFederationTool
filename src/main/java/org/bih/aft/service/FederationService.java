@@ -55,13 +55,11 @@ public class FederationService implements QueryUseCase {
 
     private FeasibilityOutput processQueryLocally(long aqlResult) {
         log.info("Query executed");
-        FeasibilityOutput feasabilityOutput = new FeasibilityOutput();
+        FeasibilityOutput feasabilityOutput;
         if (aqlResult > 10) {
-            feasabilityOutput.setLocation(homeLocation);
-            feasabilityOutput.setPatients(Long.toString(aqlResult));
+            feasabilityOutput = new FeasibilityOutput(homeLocation, Long.toString(aqlResult));
         } else {
-            feasabilityOutput.setLocation(homeLocation);
-            feasabilityOutput.setPatients("NA");
+            feasabilityOutput = new FeasibilityOutput(homeLocation, "NA");
         }
         log.info("Query finalized");
         return feasabilityOutput;
