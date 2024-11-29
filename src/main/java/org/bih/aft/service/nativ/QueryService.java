@@ -1,4 +1,4 @@
-package org.bih.aft.service;
+package org.bih.aft.service.nativ;
 
 import org.bih.aft.controller.dao.AQLinput;
 import org.bih.aft.service.dao.FeasibilityOutput;

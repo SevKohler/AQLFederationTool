@@ -1,19 +1,24 @@
-package org.bih.aft.service;
+package org.bih.aft.service.nativ;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bih.aft.controller.dao.AQLinput;
 import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.ports.QueryUseCase;
+import org.bih.aft.service.LocationProvider;
+import org.bih.aft.service.OpenEhrQueryService;
+import org.bih.aft.service.QueryVerificator;
 import org.bih.aft.service.dao.FeasibilityOutput;
 import org.bih.aft.service.dao.Location;
 import org.bih.aft.service.query.OpenEhrQueryService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ConditionalOnProperty(value = "aft.protocol", havingValue = "NATIVE")
 @Service
 @RequiredArgsConstructor
 @Slf4j

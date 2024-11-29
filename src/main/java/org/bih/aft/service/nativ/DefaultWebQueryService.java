@@ -1,10 +1,11 @@
-package org.bih.aft.service;
+package org.bih.aft.service.nativ;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bih.aft.controller.dao.AQLinput;
 import org.bih.aft.service.dao.FeasibilityOutput;
 import org.bih.aft.service.dao.Location;
 import org.json.JSONObject;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+@ConditionalOnProperty(value = "aft.protocol", havingValue = "NATIVE")
 @Slf4j
 @Service
 public class DefaultWebQueryService implements QueryService {
@@ -26,13 +28,16 @@ public class DefaultWebQueryService implements QueryService {
             aql.put("aql", aqlQuery.aql());
             HttpEntity request = new HttpEntity(aql.toString(), headers);
             RestTemplate restTemplate = new RestTemplate();
-            final String uri = location.localQueryEndpoint();
+            final String uri = localQueryEndpoint(location.url());
             ResponseEntity<FeasibilityOutput> result = restTemplate.postForEntity(uri, request, FeasibilityOutput.class);
             return new FeasibilityOutput(location.name(), result.getBody().getPatients());
         } catch (ResourceAccessException e) {
             log.warn("Location " + location.name() + " could not be reached. Error: " + e);
             return new FeasibilityOutput(location.name(), "Error");
         }
+    }
 
+    private String localQueryEndpoint(String url) {
+        return url + "/query/local";
     }
 }
