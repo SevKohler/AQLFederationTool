@@ -4,32 +4,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.bih.aft.controller.dao.AqlWithParams;
 import org.bih.aft.service.dao.FeasibilityOutput;
 import org.bih.aft.service.dao.Location;
-import org.json.JSONObject;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @ConditionalOnProperty(value = "aft.protocol", havingValue = "NATIVE")
 @Slf4j
 @Service
 public class DefaultWebQueryService implements QueryService {
 
+    private final RestClient restClient = RestClient.create();
+
     @Override
     public FeasibilityOutput sendQuery(Location location, AqlWithParams aqlQuery) {
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            JSONObject aql = new JSONObject();
-            aql.put("aql", aqlQuery.aql());
-            HttpEntity request = new HttpEntity(aql.toString(), headers);
-            RestTemplate restTemplate = new RestTemplate();
-            final String uri = localQueryEndpoint(location.url());
-            ResponseEntity<FeasibilityOutput> result = restTemplate.postForEntity(uri, request, FeasibilityOutput.class);
+            var result = restClient.post()
+                    .uri(localQueryEndpoint(location.url()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(aqlQuery)
+                    .retrieve()
+                    .toEntity(FeasibilityOutput.class);
             return new FeasibilityOutput(location.name(), result.getBody().getPatients());
         } catch (ResourceAccessException e) {
             log.warn("Location " + location.name() + " could not be reached. Error: " + e);
