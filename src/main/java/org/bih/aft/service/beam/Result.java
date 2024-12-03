@@ -10,7 +10,11 @@ record Result(
         Status status,
         String body,
         Map metadata
-) { }
+) {
+    static Result fromTask(Task task, String from, Status status, String body) {
+        return new Result(from, List.of(task.from()), task.id(), status, body, Map.of());
+    }
+}
 
 enum Status {
     claimed,

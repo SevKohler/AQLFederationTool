@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
-import java.util.Map;
 
 @ConditionalOnProperty(value = "aft.protocol", havingValue = "BEAM")
 @Service
@@ -59,22 +58,18 @@ public class BeamWorkerService {
         Result result;
         try {
             var number = openEhrQueryService.executeCountQuery(new AQLinput(task.body()));
-            result = new Result(
+            result = Result.fromTask(
+                    task,
                     properties.getAppId(),
-                    List.of(task.from()),
-                    task.id(),
                     Status.succeeded,
-                    number,
-                    Map.of()
+                    number
             );
         } catch (Exception e) {
-            result = new Result(
+            result = Result.fromTask(
+                    task,
                     properties.getAppId(),
-                    List.of(task.from()),
-                    task.id(),
                     Status.permfailed,
-                    "",
-                    Map.of()
+                    ""
             );
         }
 
