@@ -92,7 +92,9 @@ public class BeamFederationService implements QueryUseCase {
 
         var res = locations.stream().collect(Collectors.toMap(Location::name, e -> "?"));
         res.put(aftProperties.getLocation(), openEhrQueryService.executeCountQuery(new AQLinput(query.aql())));
-        res.putAll(results.getBody().stream().collect(Collectors.toMap(e -> urlToName.get(e.from()), Result::body)));
+        res.putAll(results.getBody().stream()
+                .filter(e -> e.status() == Status.succeeded)
+                .collect(Collectors.toMap(e -> urlToName.get(e.from()), Result::body)));
 
         return res.entrySet().stream()
                 .map(e -> new FeasibilityOutput(e.getKey(), e.getValue()))

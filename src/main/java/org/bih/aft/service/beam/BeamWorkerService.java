@@ -11,6 +11,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -48,12 +49,24 @@ public class BeamWorkerService {
                     .retrieve()
                     .toEntity(resultType);
 
-            tasks.getBody().forEach(this::executeTask);
+            tasks.getBody().forEach(task -> {
+                restClient.put()
+                        .uri("/v1/tasks/{task_id}/results/{app_id}", task.id(), properties.getAppId())
+                        .body(Result.fromTask(
+                                task,
+                                properties.getAppId(),
+                                Status.claimed,
+                                ""
+                        ))
+                        .retrieve();
+                executeTask(task);
+            });
         } catch (Exception e) {
             log.debug(e.getMessage(), e);
         }
     }
 
+    @Async
     void executeTask(Task task) {
         Result result;
         try {
