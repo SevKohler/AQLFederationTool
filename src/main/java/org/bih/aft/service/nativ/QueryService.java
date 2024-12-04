@@ -4,6 +4,8 @@ import org.bih.aft.controller.dao.AqlWithParams;
 import org.bih.aft.service.dao.FeasibilityOutput;
 import org.bih.aft.service.dao.Location;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface QueryService {
-    FeasibilityOutput sendQuery(Location location, AqlWithParams aqlQuery);
+    CompletableFuture<FeasibilityOutput> sendQuery(Location location, AqlWithParams aqlQuery);
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @ConditionalOnProperty(value = "aft.protocol", havingValue = "NATIVE")
 @Service
@@ -45,11 +46,12 @@ public class FederationService implements QueryUseCase {
     }
 
     private List<FeasibilityOutput> processQueryFederated(AqlWithParams aqlQuery) {
-        List<FeasibilityOutput> feasabilityOutputList = new ArrayList<>();
+        List<CompletableFuture<FeasibilityOutput>> feasabilityOutputList = new ArrayList<>();
         for (Location location : federationListService.locations()) {
             feasabilityOutputList.add(queryService.sendQuery(location, aqlQuery));
         }
+        CompletableFuture.allOf(feasabilityOutputList.toArray(new CompletableFuture[0])).join();
         log.info("Query federated");
-        return feasabilityOutputList;
+        return feasabilityOutputList.stream().map(CompletableFuture::join).toList();
     }
 }
