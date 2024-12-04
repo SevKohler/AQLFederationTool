@@ -1,7 +1,7 @@
 package org.bih.aft.service.query;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bih.aft.controller.dao.AQLinput;
+import org.bih.aft.controller.dao.AqlWithParams;
 import org.bih.aft.exceptions.InvalidCountQuery;
 import org.ehrbase.openehr.sdk.aql.dto.AqlQuery;
 import org.ehrbase.openehr.sdk.aql.dto.operand.AggregateFunction;
@@ -16,7 +16,7 @@ class CountVerificator implements QueryVerificator {
 
 
     @Override
-    public void verify(AQLinput aqlQuery) { // TODO: What return type here ? Response should be 400 in the end
+    public void verify(AqlWithParams aqlQuery) { // TODO: What return type here ? Response should be 400 in the end
         String query = aqlQuery.aql();
         AqlQuery aqlQuery1 = AqlQuery.parse(query);
         SelectClause selectClause = aqlQuery1.getSelect();

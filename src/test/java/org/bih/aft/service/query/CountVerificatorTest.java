@@ -1,8 +1,10 @@
 package org.bih.aft.service.query;
 
-import org.bih.aft.controller.dao.AQLinput;
+import org.bih.aft.controller.dao.AqlWithParams;
 import org.bih.aft.exceptions.InvalidCountQuery;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,17 +12,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CountVerificatorTest {
 
     @Test
-    void validQuery()  {
+    void validQuery() {
         CountVerificator countVerificator = new CountVerificator();
-        AQLinput aQlQuery = new AQLinput("Select COUNT(x) from EHR x");
+        AqlWithParams aQlQuery = new AqlWithParams("Select COUNT(x) from EHR x", Map.of());
         countVerificator.verify(aQlQuery);
         // MOCK ?!
     }
 
     @Test
-    void invalidSelectStatementAmount()  {
+    void invalidSelectStatementAmount() {
         CountVerificator countVerificator = new CountVerificator();
-        AQLinput aQlQuery = new AQLinput("Select COUNT(x), x from EHR x");
+        AqlWithParams aQlQuery = new AqlWithParams("Select COUNT(x), x from EHR x", Map.of());
         Exception exception = assertThrows(InvalidCountQuery.class, () -> {
             countVerificator.verify(aQlQuery);
         });
@@ -30,9 +32,9 @@ public class CountVerificatorTest {
     }
 
     @Test
-    void invalidSelectFunction()  {
+    void invalidSelectFunction() {
         CountVerificator countVerificator = new CountVerificator();
-        AQLinput aQlQuery = new AQLinput("Select Max(x) from EHR x");
+        AqlWithParams aQlQuery = new AqlWithParams("Select Max(x) from EHR x", Map.of());
         Exception exception = assertThrows(InvalidCountQuery.class, () -> {
             countVerificator.verify(aQlQuery);
         });
@@ -44,7 +46,7 @@ public class CountVerificatorTest {
     @Test
     void invalidSelectWithoutCount() {
         CountVerificator countVerificator = new CountVerificator();
-        AQLinput aQlQuery = new AQLinput("Select x from EHR x");
+        AqlWithParams aQlQuery = new AqlWithParams("Select x from EHR x", Map.of());
         Exception exception = assertThrows(InvalidCountQuery.class, () -> {
             countVerificator.verify(aQlQuery);
         });

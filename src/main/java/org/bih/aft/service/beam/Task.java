@@ -4,8 +4,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.util.StdConverter;
+import org.bih.aft.controller.dao.AqlWithParams;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,7 +19,9 @@ record Task(
     String id,
     String from,
     List<String> to,
-    String body,
+    @JsonSerialize(converter = AqlWithParamsToStringConverter.class)
+    @JsonDeserialize(converter = StringToAqlWithParamsConverter.class)
+    AqlWithParams body,
     @JsonDeserialize(using = FailureStrategyDeserializer.class)
     FailureStrategy failure_strategy,
     String ttl,
@@ -56,6 +62,34 @@ class FailureStrategyDeserializer extends StdDeserializer<FailureStrategy> {
                     f.get("retry").get("backoff_millisecs").asInt(),
                     f.get("retry").get("max_tries").asInt()
             ));
+        }
+    }
+}
+
+class StringToAqlWithParamsConverter extends StdConverter<String, AqlWithParams> {
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    public AqlWithParams convert(String value) {
+        try {
+            return mapper.readValue(value, AqlWithParams.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(value);
+        }
+    }
+}
+
+class AqlWithParamsToStringConverter extends StdConverter<AqlWithParams, String> {
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    public String convert(AqlWithParams value) {
+        try {
+            return mapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(value.toString());
         }
     }
 }

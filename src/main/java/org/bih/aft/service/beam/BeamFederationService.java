@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bih.aft.config.AftProperties;
 import org.bih.aft.config.BeamProperties;
-import org.bih.aft.controller.dao.AQLinput;
+import org.bih.aft.controller.dao.AqlWithParams;
 import org.bih.aft.ports.QueryUseCase;
 import org.bih.aft.service.FederationListService;
 import org.bih.aft.service.dao.FeasibilityOutput;
@@ -66,12 +66,12 @@ public class BeamFederationService implements QueryUseCase {
     }
 
     @Override
-    public List<FeasibilityOutput> federate(AQLinput query) {
+    public List<FeasibilityOutput> federate(AqlWithParams query) {
         Task task = new Task(
                 UUID.randomUUID().toString(),
                 properties.getAppId(),
                 locations.stream().map(Location::url).toList(),
-                query.aql(),
+                query,
                 Discard.discard,
                 "%ss".formatted(waitTime),
                 Map.of()
@@ -91,7 +91,7 @@ public class BeamFederationService implements QueryUseCase {
                 .toEntity(resultType);
 
         var res = locations.stream().collect(Collectors.toMap(Location::name, e -> "?"));
-        res.put(aftProperties.getLocation(), openEhrQueryService.executeCountQuery(new AQLinput(query.aql())));
+        res.put(aftProperties.getLocation(), openEhrQueryService.executeCountQuery(query));
         res.putAll(results.getBody().stream()
                 .filter(e -> e.status() == Status.succeeded)
                 .collect(Collectors.toMap(e -> urlToName.get(e.from()), Result::body)));
@@ -102,7 +102,7 @@ public class BeamFederationService implements QueryUseCase {
     }
 
     @Override
-    public FeasibilityOutput local(AQLinput query) {
+    public FeasibilityOutput local(AqlWithParams query) {
         throw new UnsupportedOperationException("Not supported in Beam mode.");
     }
 }

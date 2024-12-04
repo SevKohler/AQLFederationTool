@@ -1,7 +1,7 @@
 package org.bih.aft.service.nativ;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bih.aft.controller.dao.AQLinput;
+import org.bih.aft.controller.dao.AqlWithParams;
 import org.bih.aft.service.dao.FeasibilityOutput;
 import org.bih.aft.service.dao.Location;
 import org.json.JSONObject;
@@ -20,7 +20,7 @@ import org.springframework.web.client.RestTemplate;
 public class DefaultWebQueryService implements QueryService {
 
     @Override
-    public FeasibilityOutput sendQuery(Location location, AQLinput aqlQuery) {
+    public FeasibilityOutput sendQuery(Location location, AqlWithParams aqlQuery) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

@@ -2,12 +2,10 @@ package org.bih.aft.service.nativ;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bih.aft.controller.dao.AQLinput;
+import org.bih.aft.controller.dao.AqlWithParams;
 import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.ports.QueryUseCase;
 import org.bih.aft.service.LocationProvider;
-import org.bih.aft.service.OpenEhrQueryService;
-import org.bih.aft.service.QueryVerificator;
 import org.bih.aft.service.dao.FeasibilityOutput;
 import org.bih.aft.service.dao.Location;
 import org.bih.aft.service.query.OpenEhrQueryService;
@@ -34,7 +32,7 @@ public class FederationService implements QueryUseCase {
     private final QueryService queryService;
 
     @Override
-    public List<FeasibilityOutput> federate(AQLinput aqlQuery) throws InvalidCountQuery {
+    public List<FeasibilityOutput> federate(AqlWithParams aqlQuery) throws InvalidCountQuery {
         List<FeasibilityOutput> feasabilityOutput = processQueryFederated(aqlQuery);
         feasabilityOutput.add(new FeasibilityOutput(homeLocation, openEhrQueryService.executeCountQuery(aqlQuery)));
         log.info("Query finalized");
@@ -42,11 +40,11 @@ public class FederationService implements QueryUseCase {
     }
 
     @Override
-    public FeasibilityOutput local(AQLinput aqlQuery) throws InvalidCountQuery {
+    public FeasibilityOutput local(AqlWithParams aqlQuery) throws InvalidCountQuery {
         return new FeasibilityOutput(homeLocation, openEhrQueryService.executeCountQuery(aqlQuery));
     }
 
-    private List<FeasibilityOutput> processQueryFederated(AQLinput aqlQuery) {
+    private List<FeasibilityOutput> processQueryFederated(AqlWithParams aqlQuery) {
         List<FeasibilityOutput> feasabilityOutputList = new ArrayList<>();
         for (Location location : federationListService.locations()) {
             feasabilityOutputList.add(queryService.sendQuery(location, aqlQuery));

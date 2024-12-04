@@ -1,9 +1,9 @@
 package org.bih.aft.service.query;
 
-import org.bih.aft.controller.dao.AQLinput;
+import org.bih.aft.controller.dao.AqlWithParams;
 
 interface QueryVerificator {
 
-    void verify(AQLinput aqlQuery);
+    void verify(AqlWithParams aqlQuery);
 
 }

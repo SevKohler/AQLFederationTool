@@ -4,7 +4,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bih.aft.config.BeamProperties;
-import org.bih.aft.controller.dao.AQLinput;
 import org.bih.aft.service.query.OpenEhrQueryService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.ParameterizedTypeReference;
@@ -70,7 +69,7 @@ public class BeamWorkerService {
     void executeTask(Task task) {
         Result result;
         try {
-            var number = openEhrQueryService.executeCountQuery(new AQLinput(task.body()));
+            var number = openEhrQueryService.executeCountQuery(task.body());
             result = Result.fromTask(
                     task,
                     properties.getAppId(),
