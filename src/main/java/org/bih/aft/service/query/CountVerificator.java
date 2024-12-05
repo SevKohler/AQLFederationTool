@@ -1,4 +1,4 @@
-package org.bih.aft.service;
+package org.bih.aft.service.query;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bih.aft.controller.dao.AQLinput;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Slf4j
 @Service
-public class CountVerificator implements QueryVerificator {
+class CountVerificator implements QueryVerificator {
 
 
     @Override

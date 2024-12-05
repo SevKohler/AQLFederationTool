@@ -1,4 +1,4 @@
-package org.bih.aft.service;
+package org.bih.aft.service.query;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OpenEhrQueryService {
+class QueryService {
 
     private final OpenEhrClient openEhrClient;
 
-    public long executeCountQuery(String inputQuery) {
+    long executeCountQuery(String inputQuery) {
         NativeQuery<Record1<Long>> query = Query.buildNativeQuery(inputQuery, Long.class);
         try {
             return openEhrClient.aqlEndpoint().execute(query).get(0).value1();

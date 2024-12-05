@@ -13,4 +13,6 @@ import java.util.List;
 public class AftProperties {
 
     private List<Location> remoteLocations;
+
+    private int minHits = 10;
 }

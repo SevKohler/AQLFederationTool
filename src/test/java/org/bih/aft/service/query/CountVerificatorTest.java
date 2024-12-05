@@ -1,6 +1,5 @@
-package org.bih.aft.service;
+package org.bih.aft.service.query;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bih.aft.controller.dao.AQLinput;
 import org.bih.aft.exceptions.InvalidCountQuery;
 import org.junit.jupiter.api.Test;

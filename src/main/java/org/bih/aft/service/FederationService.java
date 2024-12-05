@@ -7,6 +7,7 @@ import org.bih.aft.exceptions.InvalidCountQuery;
 import org.bih.aft.ports.QueryUseCase;
 import org.bih.aft.service.dao.FeasibilityOutput;
 import org.bih.aft.service.dao.Location;
+import org.bih.aft.service.query.OpenEhrQueryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -23,25 +24,21 @@ public class FederationService implements QueryUseCase {
 
     private final OpenEhrQueryService openEhrQueryService;
 
-    private final QueryVerificator queryVerificator;
-
     private final LocationProvider federationListService;
 
     private final QueryService queryService;
 
     @Override
     public List<FeasibilityOutput> federate(AQLinput aqlQuery) throws InvalidCountQuery {
-        queryVerificator.verify(aqlQuery);
         List<FeasibilityOutput> feasabilityOutput = processQueryFederated(aqlQuery);
-        feasabilityOutput.add(processQueryLocally(openEhrQueryService.executeCountQuery(aqlQuery.aql())));
+        feasabilityOutput.add(new FeasibilityOutput(homeLocation, openEhrQueryService.executeCountQuery(aqlQuery)));
         log.info("Query finalized");
         return feasabilityOutput;
     }
 
     @Override
     public FeasibilityOutput local(AQLinput aqlQuery) throws InvalidCountQuery {
-        queryVerificator.verify(aqlQuery);
-        return processQueryLocally(openEhrQueryService.executeCountQuery(aqlQuery.aql()));
+        return new FeasibilityOutput(homeLocation, openEhrQueryService.executeCountQuery(aqlQuery));
     }
 
     private List<FeasibilityOutput> processQueryFederated(AQLinput aqlQuery) {
@@ -51,17 +48,5 @@ public class FederationService implements QueryUseCase {
         }
         log.info("Query federated");
         return feasabilityOutputList;
-    }
-
-    private FeasibilityOutput processQueryLocally(long aqlResult) {
-        log.info("Query executed");
-        FeasibilityOutput feasabilityOutput;
-        if (aqlResult > 10) {
-            feasabilityOutput = new FeasibilityOutput(homeLocation, Long.toString(aqlResult));
-        } else {
-            feasabilityOutput = new FeasibilityOutput(homeLocation, "NA");
-        }
-        log.info("Query finalized");
-        return feasabilityOutput;
     }
 }
