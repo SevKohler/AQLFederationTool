@@ -35,9 +35,10 @@ public class FederationService implements QueryUseCase {
     @Override
     public List<FeasibilityOutput> federate(AqlWithParams aqlQuery) throws InvalidCountQuery {
         List<FeasibilityOutput> feasabilityOutput = processQueryFederated(aqlQuery);
-        feasabilityOutput.add(new FeasibilityOutput(homeLocation, openEhrQueryService.executeCountQuery(aqlQuery)));
+        List<FeasibilityOutput> tmpList = new ArrayList<>(feasabilityOutput);
+         tmpList.add(new FeasibilityOutput(homeLocation, openEhrQueryService.executeCountQuery(aqlQuery)));
         log.info("Query finalized");
-        return feasabilityOutput;
+        return tmpList;
     }
 
     @Override
