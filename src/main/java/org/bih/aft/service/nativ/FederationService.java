@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ConditionalOnProperty(value = "aft.protocol", havingValue = "NATIVE")
 @Service
@@ -35,10 +37,9 @@ public class FederationService implements QueryUseCase {
     @Override
     public List<FeasibilityOutput> federate(AqlWithParams aqlQuery) throws InvalidCountQuery {
         List<FeasibilityOutput> feasabilityOutput = processQueryFederated(aqlQuery);
-        List<FeasibilityOutput> tmpList = new ArrayList<>(feasabilityOutput);
-         tmpList.add(new FeasibilityOutput(homeLocation, openEhrQueryService.executeCountQuery(aqlQuery)));
+        var output = new FeasibilityOutput(homeLocation, openEhrQueryService.executeCountQuery(aqlQuery));
         log.info("Query finalized");
-        return tmpList;
+        return Stream.concat(feasabilityOutput.stream(), Stream.of(output)).collect(Collectors.toList());
     }
 
     @Override
